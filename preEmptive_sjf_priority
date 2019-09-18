@@ -14,9 +14,9 @@ btA1 = btA[:]
 atA = ('0 1 2 3 4 5 6').split() ; atA = [int(i) for i in atA]
 #priority by----------
 #---------------------priority non-P
-#priorityA = ('2 6 3 5 4 10 9').split() ; priorityA = [int(i) for i in priorityA]
+priorityA = ('2 6 3 5 4 10 9').split() ; priorityA = [int(i) for i in priorityA]
 #---------------------AT fcfs
-priorityA = atA # based on AT
+#priorityA = atA # based on AT
 #---------------------BT sjf
 #priorityA = btA
 #endQuestion
@@ -25,6 +25,7 @@ orderA = [] #order of exec per sec
 clk = min(atA)
 summ = sum(btA)
 while clk <= summ:
+          if len(doneA) == lenn: break
           #take temp array every sec
           pNameA_temp = []
           priorityA_temp = []  
@@ -54,8 +55,7 @@ while clk <= summ:
           btA[process_2_exec] = btA[process_2_exec] - 1
           if btA[process_2_exec] == 0:
                     doneA.append(process_2_exec)
-
-          if len(doneA) == lenn: break
+           
           clk += 1
           
 print 'order of execution by AT and priority\n', orderA
@@ -94,63 +94,28 @@ print 'tatArray', tatArray
 print 'ctArray', ctArray 
 #simple printing
 
-'''
+
 print 'tatArray', tatArray
-print 'P            BT        AT         WT        TAT        CT'
+print 'P            BT        AT         WT             TAT             CT'
 for i in range(lenn):
-          print 'P',(pName[i]+1),'        ', btArray[i],'        ', atArray[i], \
-          '         ', wtArray[i],'        ', tatArray[i], \
-          '         ', sum(btArray[:i+1])+min(atArray)
+          print 'P',(pName[i]+1),'        ', btA[i],'        ', atA[i], \
+          '         ', wtArray[i],'             ', tatArray[i], \
+          '              ', ctArray[i]
 
-
-#program2######################################
-#priority
-# priorityAlgo to fcfs based on priority and AT
-clk = 0
-
-orderA = doneA
-while clk < sum(btA):
-          pNameA_new = []
-          btA_new = []  
-          atA_new = []
-          arrivedA = []
-          for j in range(lenn):
-                    if atA[j] <= clk:
-                              arrivedA.append(j)                  
-          for i in arrivedA:
-                    pNameA_new.append( pNameA[ orderA[i] ] )
-                    btA_new.append( btA[ orderA[i] ] )
-                    atA_new.append( atA[ orderA[i] ] )
-          clk += 1
-print pNameA_new, btA_new, atA_new
-
-#program3###################################
-#fcfs
-#take input
-#[0, 1, 3, 2, 4] [11, 28, 10, 2, 16] [0, 5, 2, 12, 9]
-pName = pNameA_new
-btArray = btA_new
-atArray = atA_new 
-print btArray , atArray
-#actual code
-wt = 0
-wtArray = []; tatArray = []
-for i in range(len(btArray)):
-          wtArray.append(wt)
-          wt += btArray[i]
-          tatArray.append(wt)
-#simple printing
-print 'wtArray', wtArray
-print 'tatArray', tatArray
-print 'P            BT        AT         WT        TAT        CT'
-for i in range(lenn):
-          print 'P',(pName[i]+1),'        ', btArray[i],'        ', atArray[i], \
-          '         ', wtArray[i],'        ', tatArray[i], \
-          '         ', sum(btArray[:i+1])+min(atArray)
 '''
+output
+wtArray [0, 14, 0, 7, 1, 25, 16]
+tatArray [1, 21, 3, 13, 6, 40, 24]
+ctArray [1, 22, 5, 16, 10, 45, 30]
+P            BT        AT         WT             TAT             CT
+P 1          1          0           0               1                1
+P 2          7          1           14               21                22
+P 3          3          2           0               3                5
+P 4          6          3           7               13                16
+P 5          5          4           1               6                10
+P 6          15          5           25               40                45
+P 7          8          6           16               24                30
+>>> 
 
 
-
-
-
-
+'''
