@@ -1,0 +1,140 @@
+QT=2
+pNameA=(0 1 2 3 4) ; p_index=5
+btA=(5 3 1 2 3) ; b_index=5
+atA=(0 1 2 3 4) ; a_index=5
+
+
+############################# lenA function ################
+function lenA() {
+arr=("$@")
+lenn=0
+for i in "${arr[@]}"
+do
+let lenn++  
+done
+echo "$lenn"
+}
+################################### lenA func end ###########
+
+############################# min function ################
+function minAT() {
+
+arr=("$@")
+minn=100
+for i in "${arr[@]}"
+do
+#echo 'out' $i
+if [ $i -lt $minn ]
+then
+minn=$i
+fi  
+done
+echo "$minn"
+}
+################################### min func end ###########
+clk=$(minAT "${atA[@]}")
+ 
+############################# sum function ################
+function sumA() {
+arr=("$@")
+summ=0
+for i in "${arr[@]}"
+do
+summ=$(expr $summ + $i)
+done
+echo "$summ"
+}
+################################### sum func end ############
+declare -a ReadyQueue
+declare -a order_p ; order_p_index=0
+declare -a order_p_t ; order_p_t_index=0
+clk=0
+chart_ctr=0
+summ=$(sumA "${btA[@]}")
+lenBT=$(lenA "${btA[@]}")
+declare -a ctA ; gen_index=0
+declare -a wtA ;  
+declare -a tatA ;  
+for(( i=0 ; i<lenBT ; i++ ))
+do
+ctA[$gen_index]=0
+done
+
+
+while [ $clk -lt $summ ]
+do
+#initialise 3 array
+        pNameA_temp=() ; pNameA_index=0
+        btA_temp=() ; btA_index=0
+        atA_temp=() ; atA_index=0
+lenBT=$(lenA "${btA[@]}")
+for(( i=0 ; i<lenBT ; i++ ))
+do
+
+if [ ${atA[$i]} -eq $clk ]
+then
+pNameA_temp[$pNameA_index]=${pNameA[$i]} ; let pNameA_index++
+btA_temp[$btA_index]=${btA[$i]} ; let btA_index++
+atA_temp[$atA_index]=${atA[$i]} ; let atA_index++
+fi
+
+done
+ 
+p=0
+for i in "${pNameA_temp[@]}"
+#for(( p=0 ; p<$x ; p++ ))
+do
+
+if [ ${btA_temp[$p]} -le $QT ]
+then
+chart_ctr=$(( $chart_ctr + ${btA_temp[$p]} ))
+order_p[$order_p_index]=${pNameA_temp[$p]} ; let order_p_index++
+order_p_t[$order_p_t_index]=${btA_temp[$p]} ; let order_p_t_index++
+
+pro=${pNameA_temp[$p]}
+echo " $chart_ctr ${pNameA_temp[$p]} ${btA_temp[$p]}"
+ctA[${pNameA_temp[$p]}]=$chart_ctr
+wtA[${pNameA_temp[$p]}]=$(( $chart_ctr - ${atA[$pro]} - ${btA[$pro]} ))
+tatA[${pNameA_temp[$p]}]=$(( $chart_ctr - ${atA[$pro]} ))
+
+elif [ ${btA_temp[$p]} -gt $QT ]
+then
+
+
+order_p[$order_p_index]=${pNameA_temp[$p]} ; let order_p_index++
+order_p_t[$order_p_t_index]=2 ; let order_p_t_index++
+atA[$a_index]=$(( $chart_ctr + 2 )) ; let a_index++
+btA[$b_index]=$(( ${btA_temp[$p]} - 2 )) ; let b_index++
+pNameA[$p_index]=${pNameA_temp[$p]} ; let p_index++
+chart_ctr=$(( $chart_ctr + 2 ))
+
+fi
+let p++
+done
+
+
+
+clk=$(( $clk + 1 ))
+
+done
+
+echo ${order_p[@]}
+echo ${order_p_t[@]}
+echo ${ctA[@]}
+echo ${wtA[@]}
+echo ${tatA[@]}
+
+
+echo "P    AT  BT  WT TAT  CT"
+
+for(( i=0 ; i<5 ; i++ ))
+do
+
+echo "P$i   ${atA[$i]}   ${btA[$i]}   ${wtA[$i]}   ${tatA[$i]}     ${ctA[$i]} "
+
+done
+wt_total=$(sumA "${wtA[@]}")
+tat_total=$(sumA "${tatA[@]}")
+ 
+echo "sum of tat $wt_total "
+echo "sum of tat $tat_total"
