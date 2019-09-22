@@ -1,0 +1,236 @@
+#program 3 for : Round-Robin
+
+#code
+##userInput
+#Question
+echo "welcome to Round Robin"
+#QT
+echo "Enter Quantum Time: " ; read QT ;
+#pName
+declare -a pNameA ; p_index=0 ;
+echo "Enter num of processes:  "
+read np
+for(( i=0 ; i<$np ; i++ ))
+do
+	pNameA[$p_index]=$i;	let p_index++	
+done
+#btA
+declare -a btA ; b_index=0 ;
+echo "Enter Burst Time:  "
+for(( i=0 ; i<$np ; i++ ))
+do
+	echo "BT P$i : " ; read temp ; 	
+	btA[$b_index]=$temp;	let b_index++	
+done
+#atA
+declare -a atA ; a_index=0 ;
+echo "Enter Arrival Time:  "
+for(( i=0 ; i<$np ; i++ ))
+do
+	echo "AT P$i : " ; read temp ; 	
+	atA[$a_index]=$temp;	let  a_index++	
+done
+
+
+#user input end
+
+############################# lenA function ################
+function lenA() {
+	arr=("$@")
+	lenn=0
+	for i in "${arr[@]}"
+	do
+		let lenn++  
+	done
+	echo "$lenn"
+}
+################################### lenA func end ########### 
+
+############################# min function ################
+function minAT() {
+	
+	arr=("$@")
+	minn=100
+	for i in "${arr[@]}"
+	do
+		#echo 'out' $i	
+		if [ $i -lt $minn ]
+		then
+			minn=$i
+		fi  
+	done
+	echo "$minn"
+}
+################################### min func end ########### 
+clk=$(minAT "${atA[@]}")
+ 
+############################# sum function ################
+function sumA() {
+	arr=("$@")
+	summ=0
+	for i in "${arr[@]}"
+	do
+		summ=$(expr $summ + $i) 
+	done
+	echo "$summ"
+}
+################################### sum func end ############ 
+declare -a ReadyQueue
+declare -a order_p ; order_p_index=0
+declare -a order_p_t ; order_p_t_index=0
+clk=0
+chart_ctr=0
+summ=$(sumA "${btA[@]}")
+lenBT=$(lenA "${btA[@]}")
+declare -a ctA ; gen_index=0
+declare -a wtA ;  
+declare -a tatA ;  
+	for(( i=0 ; i<lenBT ; i++ ))
+	do	
+		ctA[$gen_index]=0
+	done
+
+
+while [ $clk -lt $summ ]
+do 
+	#initialise 3 array
+        pNameA_temp=() ; pNameA_index=0
+        btA_temp=() ; btA_index=0
+        atA_temp=() ; atA_index=0
+	lenBT=$(lenA "${btA[@]}")
+	for(( i=0 ; i<lenBT ; i++ ))
+	do
+
+	if [ ${atA[$i]} -eq $clk ]
+	then
+	pNameA_temp[$pNameA_index]=${pNameA[$i]} ; let pNameA_index++
+	btA_temp[$btA_index]=${btA[$i]} ; let btA_index++
+	atA_temp[$atA_index]=${atA[$i]} ; let atA_index++
+	fi
+
+	done
+ 
+	p=0
+	for i in "${pNameA_temp[@]}"
+	#for(( p=0 ; p<$x ; p++ ))
+	do
+	 
+	if [ ${btA_temp[$p]} -le $QT ]
+	then
+	chart_ctr=$(( $chart_ctr + ${btA_temp[$p]} ))
+	order_p[$order_p_index]=${pNameA_temp[$p]} ; let order_p_index++
+	order_p_t[$order_p_t_index]=${btA_temp[$p]} ; let order_p_t_index++
+
+	pro=${pNameA_temp[$p]}
+	 
+	ctA[${pNameA_temp[$p]}]=$chart_ctr
+	wtA[${pNameA_temp[$p]}]=$(( $chart_ctr - ${atA[$pro]} - ${btA[$pro]} ))
+	tatA[${pNameA_temp[$p]}]=$(( $chart_ctr - ${atA[$pro]} ))
+
+	elif [ ${btA_temp[$p]} -gt $QT ]
+	then
+	
+
+	order_p[$order_p_index]=${pNameA_temp[$p]} ; let order_p_index++
+	order_p_t[$order_p_t_index]=2 ; let order_p_t_index++
+	atA[$a_index]=$(( $chart_ctr + 2 )) ; let a_index++
+	btA[$b_index]=$(( ${btA_temp[$p]} - 2 )) ; let b_index++
+	pNameA[$p_index]=${pNameA_temp[$p]} ; let p_index++
+	chart_ctr=$(( $chart_ctr + 2 ))
+	
+	fi
+	let p++
+	done	
+
+	 
+
+	clk=$(( $clk + 1 ))
+
+done
+
+ 
+echo "Round Robin"
+echo "Table"
+echo "P    AT  BT  WT TAT  CT"
+
+for(( i=0 ; i<5 ; i++ ))
+do
+	
+echo "P$i   ${atA[$i]}   ${btA[$i]}   ${wtA[$i]}   ${tatA[$i]}     ${ctA[$i]} "
+	
+done
+wt_total=$(sumA "${wtA[@]}")
+tat_total=$(sumA "${tatA[@]}")
+ 
+echo "sum of tat $wt_total " 
+echo "sum of tat $tat_total"
+
+
+
+####################################################
+
+echo "Gantt Chart "
+
+chart_ctr=0;
+echo -n "00"
+for i in "${order_p_t[@]}"
+do
+	chart_ctr=$(( $chart_ctr + $i )) ; 
+	if [ $chart_ctr -lt 10 ]
+	then
+		echo -n "  0$chart_ctr" ; 
+	else
+		echo -n "  $chart_ctr" ; 
+	fi
+	 
+done
+echo ""
+for i in "${order_p[@]}"
+do
+	echo -n "  P$i"
+done
+echo ""
+#codeEnd
+#output
+visha7x7@ubuntu:~/vishalsingh/OS_LAB/sheduling$ ./rr2_userInput.sh 
+welcome
+Enter Quantum Time: 
+2
+Enter num of processes:  
+5
+Enter Burst Time:  
+BT P0 : 
+5
+BT P1 : 
+3
+BT P2 : 
+1
+BT P3 : 
+2
+BT P4 : 
+3
+Enter Arrival Time:  
+AT P0 : 
+0
+AT P1 : 
+1
+AT P2 : 
+2
+AT P3 : 
+3
+AT P4 : 
+4
+Round Robin
+Table
+P    AT  BT  WT TAT  CT
+P0   0   5   8   13     13 
+P1   1   3   8   11     12 
+P2   2   1   2   3     5 
+P3   3   2   4   6     9 
+P4   4   3   7   10     14 
+sum of tat 29 
+sum of tat 43
+Gantt Chart 
+00  02  04  05  07  09  11  12  13  14
+  P0  P1  P2  P0  P3  P4  P1  P0  P4
+#outputEnd
