@@ -1,0 +1,315 @@
+#program 1 for : Non-Preemptive 1)FCFS 2)SJF 3)Priority
+#code
+#priority
+#find Order by priority and At
+ 
+#Question
+pNameA=(0 1 2 3 4 5 6)
+#lenn = len(pNameA)
+btA=(3 5 4 2 9 4 10)
+atA=(0 2 1 4 6 5 7)
+echo "enter 1 priority 2 bt 3 at"
+read key
+if [ $key == 1 ]
+then
+	priorityA=(2 6 3 5 7 4 10)
+elif [ $key == 2 ]
+then
+	priorityA=(0 2 1 4 6 5 7) #at
+else
+	priorityA=(3 5 4 2 9 4 10) #bt
+fi
+#priorityA=(2 6 3 5 7 4 10)
+#priorityA=(0 2 1 4 6 5 7) #at
+#priorityA=(3 5 4 2 9 4 10) #bt
+echo 'pNameA' ${pNameA[@]} ;echo 'btA' ${btA[@]} ;echo 'atA' ${atA[@]} 
+echo 'priorityA' ${priorityA[@]} ;
+#endQuestion
+
+
+############################# lenA function ################
+function lenA() {
+	arr=("$@")
+	lenn=0
+	for i in "${arr[@]}"
+	do
+		let lenn++  
+	done
+	echo "$lenn"
+}
+################################### lenA func end #############333
+
+############################# min function ################
+function minAT() {
+	
+	arr=("$@")
+	minn=100
+	for i in "${arr[@]}"
+	do
+		#echo 'out' $i	
+		if [ $i -lt $minn ]
+		then
+			minn=$i
+		fi  
+	done
+	echo "$minn"
+}
+################################### min func end #############333
+clk=$(minAT "${atA[@]}")
+
+############################# sum function ################
+function sumA() {
+	arr=("$@")
+	summ=0
+	for i in "${arr[@]}"
+	do
+		summ=$(expr $summ + $i) 
+	done
+	echo "$summ"
+}
+################################### sum func end #############333
+sumBT=$(sumA "${btA[@]}")
+
+
+#priority while loop# from program 1
+lenn=$(lenA "${pNameA[@]}")
+
+declare -a doneA
+doneA_index=0
+while [ $clk -lt $sumBT ]
+do
+
+	if [ $(lenA "${doneA[@]}") -eq $lenn ]
+	then
+		break
+	fi
+	#initialise 3 array
+          pNameA_temp=() ; pNameA_index=0
+          priorityA_temp=() ; priorityA_index=0
+          btA_temp=() ; btA_index=0
+
+	
+	#end initialise
+
+	for(( i=0 ; i<lenn ; i++ ))
+	do
+		flag=0	
+		one=1	
+		for j in "${doneA[@]}"
+		do
+			if [ $i -eq $j ]
+			then
+				flag=1
+				break
+			fi  
+		done 
+		if [ $flag -eq $one ]
+		then
+			 
+			continue
+		fi
+		if [ ${atA[i]} -le $clk ]
+		then
+			flag=0 ; 
+		else
+			flag=1;  break
+		fi  
+			
+		 
+		 
+		pNameA_temp[$pNameA_index]=${pNameA[$i]} ; let pNameA_index++
+		priorityA_temp[$priorityA_index]=${priorityA[$i]} ; let priorityA_index++
+		btA_temp[$btA_index]=${btA[$i]} ; let btA_index++
+
+		 
+		
+	done
+   
+
+          
+
+	min_pr_index=0;
+        min_pr=100
+	#lenn=$(lenA "${pNameA[@]}")
+	lenpt=$(lenA "${priorityA_temp[@]}")
+	for(( i=0 ; i<lenpt ; i++ ))
+	do
+
+		if [ ${priorityA_temp[$i]} -lt $min_pr ]
+		then
+			min_pr=${priorityA_temp[$i]}
+			min_pr_index=$i
+		fi
+	done
+
+	doneA[$doneA_index]=${pNameA_temp[$min_pr_index]} ; let doneA_index++
+	
+
+
+	
+	 
+	inc=${btA_temp[$min_pr_index]}
+	#clk=$(expr $clk + ${btA_temp[$min_pr_index]})	 
+	clk=$(( $clk + ${btA_temp[$min_pr_index]} ))	
+done
+
+
+
+
+#priority while loop# end program 1
+
+
+#priority while loop# from program 2
+clk=0
+
+orderA=${doneA[@]}
+
+
+pNameA_temp=() ; pNameA_index=0
+priorityA_temp=() ; priorityA_index=0
+btA_temp=() ; btA_index=0
+arrivedA=() ; arrived_index=0
+
+
+#end initialise
+for(( i=0 ; i<lenn ; i++ ))
+do
+	temp=${doneA[$i]};  
+	pNameA_temp[$pNameA_index]=${pNameA[$temp]} ; let pNameA_index++
+	priorityA_temp[$priorityA_index]=${priorityA[$temp]} ; let priorityA_index++
+	btA_temp[$btA_index]=${btA[$temp]} ; let btA_index++
+done
+
+let clk++
+###### pNameA_temp[$pNameA_index]=${pNameA[$i]} ; let pNameA_index++
+
+
+
+
+
+
+#program3###################################
+
+wt=0; wtA_index=0
+declare -a wtA
+tat=0; tatA_index=0
+declare -a tatA
+for(( i=0 ; i<lenn ; i++ ))
+do
+	 
+	wtA[$wtA_index]=$wt ; let wtA_index++
+	wt=$(( $wt + ${btA_temp[$i]} ))
+	tatA[$tatA_index]=$wt ; let tatA_index++
+done
+echo "wtA : ${wtA[@]}  "
+echo "tat : ${tat[@]}  " 
+echo "P       BT       AT      WT      TAT "
+for(( i=0 ; i<lenn ; i++ ))
+do 
+	echo "P${pNameA_temp[$i]}     " \
+	"${btA_temp[$i]}       "  \
+	"${atA[$i]}       "  \
+	"${wtA[$i]}       "  \
+	"${tatA[$i]}       "  \
+
+done
+
+
+echo "${doneA[@]}"
+
+#####################################################################################
+echo "Gantt Chart"
+
+
+chart_ctr=0 ;
+
+declare -a chart_ctrA ; ch_index=0;
+for i in "${btA[@]}"
+do
+	 chart_ctr=$(( $chart_ctr + $i ));chart_ctrA[ch_index]=$chart_ctr; let ch_index++; 
+done
+echo -n  "00  "
+for i in "${chart_ctrA[@]}"
+do
+	if [ $i -lt 10 ]
+	then
+		echo -n "0$i  " ; 
+	else
+		echo -n "$i  " ; 
+	fi
+done
+
+echo ""
+
+for i in "${doneA[@]}"
+do
+	echo -n "  P$i"
+done
+echo ""
+#codeEnd
+#output
+:'
+NON Preemptive priority , FCFS , SJF
+Enter num of processes:  
+7
+Enter Burst Time:  
+BT P0 : 
+3
+BT P1 : 
+5
+BT P2 : 
+4
+BT P3 : 
+2
+BT P4 : 
+9
+BT P5 : 
+4
+BT P6 : 
+10
+Enter Arrival Time:  
+AT P0 : 
+0
+AT P1 : 
+2
+AT P2 : 
+1
+AT P3 : 
+4
+AT P4 : 
+6
+AT P5 : 
+5
+AT P6 : 
+7
+Enter 1.Priority 2.SJF 3.FCFS
+1
+enter priority 
+index 0 : 
+2
+index 1 : 
+6
+index 2 : 
+3
+index 3 : 
+5
+index 4 : 
+7
+index 5 : 
+4
+index 6 : 
+10
+P       BT       AT      WT      TAT 
+P0      3        0        0        3       
+P2      4        2        3        7       
+P5      4        1        7        11       
+P3      2        4        11        13       
+P1      5        6        13        18       
+P4      9        5        18        27       
+P6      10        7        27        37       
+0 2 5 3 1 4 6
+Gantt Chart
+00  03  08  12  14  23  27  37  
+  P0  P2  P5  P3  P1  P4  P6
+  '
+#outputEnd
