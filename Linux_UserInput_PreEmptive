@@ -1,0 +1,307 @@
+#program 2 for : Preemptive 1)FCFS 2)SJF 3)Priority
+#code
+
+
+
+#priority
+#find Order by priority and At
+#Question
+
+pNameA=(0 1 2 3 4 5 6)
+btA=(1 7 3 6 5 15 8)
+atA=(0 1 2 3 4 5 6)
+priorityA=(2 6 3 5 4 10 9)
+
+#menu
+echo "enter 1 priority 2 bt 3 at"
+read key
+if [ $key == 1 ]
+then
+	priorityA=(2 6 3 5 7 4 10)
+elif [ $key == 2 ]
+then
+	priorityA=(0 2 1 4 6 5 7) #at
+else
+	priorityA=(3 5 4 2 9 4 10) #bt
+fi
+#menu end
+
+############################# lenA function ################
+function lenA() {
+	arr=("$@")
+	lenn=0
+	for i in "${arr[@]}"
+	do
+		let lenn++  
+	done
+	echo "$lenn"
+}
+################################### lenA func end #############333
+
+############################# min function ################
+function minAT() {
+	
+	arr=("$@")
+	minn=100
+	for i in "${arr[@]}"
+	do
+		#echo 'out' $i	
+		if [ $i -lt $minn ]
+		then
+			minn=$i
+		fi  
+	done
+	echo "$minn"
+}
+################################### min func end #############333
+clk=$(minAT "${atA[@]}")
+echo 'clk' $clk
+############################# sum function ################
+function sumA() {
+	arr=("$@")
+	summ=0
+	for i in "${arr[@]}"
+	do
+		summ=$(expr $summ + $i) 
+	done
+	echo "$summ"
+}
+################################### sum func end #############333
+
+declare -a doneA
+declare -a orderA
+
+sumBT=$(sumA "${btA[@]}")
+clk=$(minAT "${atA[@]}")
+lenn=$(lenA "${pNameA[@]}")
+
+while [ $clk -lt $sumBT ]
+do
+
+	if [ $(lenA "${doneA[@]}") -eq $lenn ]
+	then
+		break
+	fi	
+	#initialise 3 array
+          pNameA_temp=() ; pNameA_index=0
+          priorityA_temp=() ; priorityA_index=0
+          btA_temp=() ; btA_index=0
+
+	for(( i=0 ; i<$lenn ; i++ ))
+	do
+		flag=0	
+		one=1	
+		#is P done
+
+		for j in "${doneA[@]}"
+		do
+			if [ $i -eq $j ]
+			then
+				flag=1
+
+				break
+			fi  
+
+		done
+		#break if done
+		if [ $flag -eq 1 ]
+		then
+			continue
+		fi
+		#end break
+		#is arrived
+		if [ ${atA[$i]} -le $clk ]
+		then
+			flag=0 ; 
+		else
+			flag=1 ; break
+		fi 
+		#take note done , arrived P
+
+		pNameA_temp[$pNameA_index]=${pNameA[$i]} ; let pNameA_index++
+		priorityA_temp[$priorityA_index]=${priorityA[$i]} ; let priorityA_index++
+		btA_temp[$btA_index]=${btA[$i]} ; let btA_index++
+	done
+
+	min_pr_index=0;
+        min_pr=100
+	lenpt=$(lenA "${priorityA_temp[@]}")
+	for(( i=0 ; i<lenpt ; i++ ))
+	do
+		
+		if [ ${priorityA_temp[$i]} -lt $min_pr ]
+		then
+			min_pr=${priorityA_temp[$i]}
+			min_pr_index=$i
+		fi
+	done
+
+	#diff start
+	process_2_exec=${pNameA_temp[$min_pr_index]}
+
+	orderA[$orderA_index]=$process_2_exec ; let orderA_index++
+
+	#exec this Px for 1 sec; reduce 1 sec from its BT
+        btA[$process_2_exec]=$(( ${btA[$process_2_exec]} - 1 ))
+	#done P
+	if [ ${btA[$process_2_exec]} -eq 0 ]
+	then
+		doneA[$doneA_index]=$process_2_exec ; let doneA_index++
+	fi
+
+	#diff end
+
+	let clk++
+
+done
+
+
+
+
+
+
+####################fcfs
+
+declare -a wtA ; wtA_index=0 ;
+declare -a tatA ; tatA_index=0 ;
+declare -a ctA
+btA=(1 7 3 6 5 15 8)
+wt=0
+tat=0
+ct=0
+len_orderA=$(lenA "${orderA[@]}")
+for (( i=0 ; i<lenn ; i++ ))
+do 
+	start=0 ; end=0 ; flag=0;
+#echo "process $i"	
+	for (( j=0 ; j<len_orderA ; j++ ))
+	do
+#echo "value of j $j"
+	if [  ${orderA[$j]} -eq $i   ]
+	then
+
+		if [  $flag -eq 0 ]
+		then
+			start=$j  ;  #echo "start $j"
+			flag=1
+		elif [ $flag -eq 1 ]
+		then
+			end=$j  ; #echo "end $j"
+			flag=1
+		fi
+	fi
+
+
+	done
+
+
+
+
+	wtA[$wtA_index]=$(( $end - ${atA[$i]} - ${btA[$i]} + 1 )) ; let wtA_index++
+	tatA[$wtA_index]=$(( $end - ${atA[$i]}  + 1 )) ; let tatA_index++
+done
+
+
+
+for(( i=0 ; i<lenn ; i++ ))
+do 
+	tatA[$i]=$(( ${wtA[$i]} + ${btA[$i]} ))  
+done
+
+echo "P       BT       AT      WT      TAT "
+for(( i=0 ; i<lenn ; i++ ))
+do 
+	echo "P${pNameA[$i]}     " \
+	"${btA[$i]}       "  \
+	"${atA[$i]}       "  \
+	"${wtA[$i]}       ${tatA[$i]} "   
+	 
+
+done
+
+
+echo "Gantt Chart"
+chart_ctr=0
+for i in "${orderA[@]}"
+do
+	echo -n "$chart_ctr P$i " ; let chart_ctr++
+	if [ $chart_ctr -eq 10 ] || [ $chart_ctr -eq 20 ] || [ $chart_ctr -eq 30 ] || [ $chart_ctr -eq 40 ]
+	then
+	echo "$chart_ctr"
+	fi
+done
+
+echo -n "$chart_ctr" 
+
+echo ""
+
+#codeEnd
+#output
+:'
+welcome
+Preemptive priority , FCFS , SJF
+Enter num of processes:  
+7
+Enter Burst Time:  
+BT P0 : 
+1
+BT P1 : 
+7
+BT P2 : 
+3
+BT P3 : 
+6
+BT P4 : 
+5
+BT P5 : 
+15
+BT P6 : 
+8
+Enter Arrival Time:  
+AT P0 : 
+0
+AT P1 : 
+1
+AT P2 : 
+2
+AT P3 : 
+3
+AT P4 : 
+4
+AT P5 : 
+5
+AT P6 : 
+6
+Enter 1.Priority 2.SJF 3.FCFS
+1
+enter priority 
+index 0 : 
+2
+index 1 : 
+6
+index 2 : 
+3
+index 3 : 
+5
+index 4 : 
+4
+index 5 : 
+10
+index 6 : 
+9
+P       BT       AT      WT      TAT 
+P0      1        0        0       1 
+P1      7        1        0       7 
+P2      3        2        6       9 
+P3      6        3        8       14 
+P4      5        4        13       18 
+P5      15        5        17       32 
+P6      8        6        31       39 
+Gantt Chart
+0 P0 1 P1 2 P1 3 P1 4 P1 5 P1 6 P1 7 P1 8 P2 9 P2 10
+10 P2 11 P3 12 P3 13 P3 14 P3 15 P3 16 P3 17 P4 18 P4 19 P4 20
+20 P4 21 P4 22 P5 23 P5 24 P5 25 P5 26 P5 27 P5 28 P5 29 P5 30
+30 P5 31 P5 32 P5 33 P5 34 P5 35 P5 36 P5 37 P6 38 P6 39 P6 40
+40 P6 41 P6 42 P6 43 P6 44 P6 45
+:
+#outputEnd
