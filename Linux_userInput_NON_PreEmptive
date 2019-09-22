@@ -1,4 +1,4 @@
-#program 1 for : Non-Preemptive 1)FCFS 2)SJF 3)Priority
+#Non-Preemptive 1)FCFS 2)SJF 3)Priority with GanttChart
 #code
 #priority
 #find Order by priority and At
