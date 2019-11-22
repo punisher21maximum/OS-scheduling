@@ -1,0 +1,146 @@
+#include<iostream>
+using namespace std;
+int SIZE = 5;
+int INFINITY = 100;
+int main()
+{
+	char process_name[] [5]={ "1", "2", "3", "4" };
+	//Given Question
+	int AT_arr_input[] = {0,1,2,3,4};
+	int BT_arr_input[] = {4,3,1,5,2};
+	int PRIORITY_arr_input[] = {2,3,4,5,5};
+	//end
+	
+	//reorder based on the PRIORITY, Order_arr has index of execution
+	/*
+	set clk
+		min AT
+	selecting processes:
+		find one with AT <= clk && min PRIORITY
+		clk += BT
+	*/
+	int Order_arr[SIZE], order_arr_index = 0;
+	int smallest_val = 100;
+	int smallest_index = 0;
+	int PRIORITY_arr_copy[SIZE];
+	int  clk = 0; //sjf
+	//set clk - find min AT
+	int minAT = INFINITY;
+	for(int i=0; i<SIZE; i++)
+	{
+		if(AT_arr_input[i] < minAT)
+		{
+			minAT = AT_arr_input[i];
+		}
+	}
+	clk = minAT;
+	cout<<"min clk:  "<<clk<<endl;
+	
+	for(int i=0; i<SIZE; i++)
+	{
+		smallest_val = INFINITY;
+		 
+		for(int j=0; j<SIZE; j++)
+		{
+ 			/*
+			cout<<"\nPRIORITY_arr_copy[j] "<<PRIORITY_arr_input[j]
+ 			<<" smallest_val "<<smallest_val
+ 			<<" AT_arr_input[j] "<<AT_arr_input[j]
+ 			<<" clk "<<clk<<endl;*/
+ 			
+			if(PRIORITY_arr_input[j] < smallest_val && AT_arr_input[j] <= clk)//sjf &&
+			{
+				smallest_val = PRIORITY_arr_input[j];
+				smallest_index = j;		
+				//cout<<"\n Yes "<<endl;		
+			}
+		}   
+		
+		//add AT of first job (shortest job)
+		
+		clk += BT_arr_input[smallest_index];//sjf		
+		Order_arr[i] = smallest_index; 
+		PRIORITY_arr_input[smallest_index] = INFINITY;
+		cout<<(Order_arr[i]+1)<<" ";
+	}		
+	
+	//reset value of AT_arr and BT_arr, by Order_arr
+	int AT_arr[SIZE], BT_arr[SIZE];
+	for(int i=0; i<SIZE; i++)
+	{
+		AT_arr[i] = AT_arr_input[ Order_arr[i] ];
+		BT_arr[i] = BT_arr_input[ Order_arr[i] ];
+	}	
+	
+	
+	//print reorder
+	cout<<"\nAT"<<endl;
+	for(int i=0; i<SIZE; i++)
+	{
+		cout<<AT_arr[i]<<" ";
+	}
+	cout<<"\nBT"<<endl;
+	for(int i=0; i<SIZE; i++)
+	{
+		cout<<BT_arr[i]<<" ";
+	}	
+	//end reorder
+	
+	
+	//initialise *****************************************************************
+	int CT_arr[SIZE], TAT_arr[SIZE], WT_arr[SIZE];	
+	int ct=0, tat=0, wt=0;
+	//find CT -------------------------
+	for (int i=0; i<SIZE; i++)
+	{
+		ct += BT_arr[i];
+		CT_arr[i] = ct;
+	}
+	// 
+	cout<<"\nCompletion Time: "<<endl;
+	for (int i=0; i<SIZE; i++)
+	{
+		cout<<CT_arr[i]<<" ";
+	}
+	//find TAT -------------------------
+	for (int i=0; i<SIZE; i++)
+	{
+		tat = CT_arr[i] - AT_arr[i];
+		TAT_arr[i] = tat;
+	}
+	// 
+	cout<<"\nTurn Around Time: "<<endl;
+	for (int i=0; i<SIZE; i++)
+	{
+		cout<<TAT_arr[i]<<" ";
+	}	
+	
+	//find WT -------------------------
+	for (int i=0; i<SIZE; i++)
+	{
+		wt = TAT_arr[i] - BT_arr[i];
+		WT_arr[i] = wt;
+	}
+	// 
+	cout<<"\nWaiting Time: "<<endl;
+	for (int i=0; i<SIZE; i++)
+	{
+		cout<<WT_arr[i]<<" ";
+	}
+	
+	//--print
+	cout<<endl;
+	cout<<"P  AT  BT  CT  TAT  WT"<<endl;
+	for(int i=0; i<SIZE; i++)
+	{
+		cout<<process_name[i]<<"  "
+		<<AT_arr[i]<<"   "
+		<<BT_arr[i]<<"   "
+		<<CT_arr[i]<<"   "
+		<<TAT_arr[i]<<"    "
+		<<WT_arr[i]<<"   "<<endl;
+	}
+	
+	
+	return 0;
+}
